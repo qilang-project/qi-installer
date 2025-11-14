@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- WiX 配置文件 - 用于生成 Windows MSI 安装包 -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+    <Product Id="*"
+             Name="奇语言编译器 Qi Compiler"
+             Language="2052"
+             Version="0.1.0"
+             Manufacturer="奇语言项目"
+             UpgradeCode="12345678-1234-1234-1234-123456789012">
+
+        <Package InstallerVersion="200"
+                 Compressed="yes"
+                 InstallScope="perMachine"
+                 Description="奇语言编译器安装程序"
+                 Comments="100% 中文关键字编程语言" />
+
+        <MajorUpgrade DowngradeErrorMessage="已安装更新版本的奇语言编译器。" />
+        <MediaTemplate EmbedCab="yes" />
+
+        <!-- 功能定义 -->
+        <Feature Id="ProductFeature"
+                 Title="奇语言编译器"
+                 Level="1"
+                 Description="奇语言编译器核心组件">
+            <ComponentGroupRef Id="ProductComponents" />
+            <ComponentRef Id="EnvironmentPath" />
+        </Feature>
+
+        <!-- 安装目录 -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="ProgramFilesFolder">
+                <Directory Id="INSTALLFOLDER" Name="Qi">
+                    <Directory Id="BinFolder" Name="bin" />
+                    <Directory Id="LibFolder" Name="lib" />
+                </Directory>
+            </Directory>
+
+            <!-- 开始菜单快捷方式 -->
+            <Directory Id="ProgramMenuFolder">
+                <Directory Id="ApplicationProgramsFolder" Name="奇语言编译器" />
+            </Directory>
+        </Directory>
+
+        <!-- 环境变量 - 添加到 PATH -->
+        <Component Id="EnvironmentPath"
+                   Directory="BinFolder"
+                   Guid="87654321-4321-4321-4321-210987654321">
+            <Environment Id="PATH"
+                        Name="PATH"
+                        Value="[BinFolder]"
+                        Permanent="no"
+                        Part="last"
+                        Action="set"
+                        System="yes" />
+        </Component>
+
+        <!-- 用户界面 -->
+        <UI>
+            <UIRef Id="WixUI_InstallDir" />
+            <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">
+                WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+            </Publish>
+        </UI>
+
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+        <!-- 许可证 -->
+        <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+
+        <!-- 图标和横幅 -->
+        <!-- <Icon Id="icon.ico" SourceFile="qi.ico" /> -->
+        <!-- <Property Id="ARPPRODUCTICON" Value="icon.ico" /> -->
+
+        <Property Id="ARPURLINFOABOUT" Value="https://github.com/qilang" />
+        <Property Id="ARPCONTACT" Value="support@qi-lang.org" />
+    </Product>
+
+    <!-- 组件组 - 要安装的文件 -->
+    <Fragment>
+        <ComponentGroup Id="ProductComponents" Directory="BinFolder">
+            <!-- 可执行文件 -->
+            <Component Id="QiExecutable" Guid="11111111-1111-1111-1111-111111111111">
+                <File Id="QiExe"
+                      Source="bin\qi.exe"
+                      KeyPath="yes"
+                      Checksum="yes" />
+            </Component>
+        </ComponentGroup>
+
+        <ComponentGroup Id="LibraryComponents" Directory="LibFolder">
+            <!-- 运行时库 -->
+            <Component Id="QiLibrary" Guid="22222222-2222-2222-2222-222222222222">
+                <File Id="QiLib"
+                      Source="lib\qi_compiler.lib"
+                      KeyPath="yes" />
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="ProductComponents">
+            <ComponentGroupRef Id="LibraryComponents" />
+        </ComponentGroup>
+    </Fragment>
+</Wix>

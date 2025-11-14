@@ -1,0 +1,66 @@
+# Rust build artifacts
+target/
+Cargo.lock
+
+# Packaging artifacts
+dist/
+pkg/
+*.tar.gz
+*.zip
+*.dmg
+*.pkg
+*.msi
+*.wixobj
+*.wixpdb
+
+# Installation staging directories
+package_root/
+pkg_root/
+installer_root/
+
+# Backup files
+*.bak
+*~
+.DS_Store
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# macOS specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows specific
+Thumbs.db
+Desktop.ini
+
+# Build outputs
+bin/qi
+bin/qic
+bin/qi.exe
+bin/qic.exe
+lib/libqi_compiler.a
+lib/libqi_gui.a
+lib/qi_compiler.lib
+lib/qi_gui.lib
+
+# Generated documentation
+docs/generated/
+
+# Test outputs
+test_output/
+test_results/
