@@ -101,6 +101,10 @@ mkdir -p "$PKG_SCRIPTS"
 cp "$WORKSPACE_DIR/$QI_BINARY" "$PKG_ROOT/usr/local/bin/qi"
 cp "$WORKSPACE_DIR/$QI_LIB" "$PKG_ROOT/usr/local/lib/qi/libqi_compiler.a"
 
+# 创建中文别名软链接
+print_info "创建中文命令别名 '奇'..."
+ln -sf qi "$PKG_ROOT/usr/local/bin/奇"
+
 # 复制 GUI 库（如果存在）
 if [ "$HAS_GUI" = true ]; then
     cp "$WORKSPACE_DIR/$QI_GUI_LIB" "$PKG_ROOT/usr/local/lib/qi/libqi_gui.a"
@@ -134,11 +138,15 @@ echo "✓ 奇语言编译器安装成功！"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "使用方法:"
-echo "  qi run <文件.qi>       - 运行奇语言程序"
-echo "  qi compile <文件.qi>   - 编译奇语言程序"
-echo "  qi --help              - 查看帮助"
+echo "  qi 运行 <文件.qi>       - 运行奇语言程序"
+echo "  qi 编译 <文件.qi>       - 编译奇语言程序"
+echo "  qi --帮助               - 查看帮助"
 echo ""
-echo "请打开新的终端窗口以使用 qi 命令"
+echo "或使用中文命令:"
+echo "  奇 运行 <文件.qi>       - 运行奇语言程序"
+echo "  奇 编译 <文件.qi>       - 编译奇语言程序"
+echo ""
+echo "请打开新的终端窗口以使用 qi 或 奇 命令"
 echo ""
 
 exit 0
@@ -213,10 +221,11 @@ cat > "$SCRIPT_DIR/welcome.html" << 'WELCOME_EOF'
     <p>此安装程序将安装以下组件：</p>
     <ul>
         <li>qi 编译器（/usr/local/bin/qi）</li>
+        <li>奇 命令别名（/usr/local/bin/奇）</li>
         <li>运行时库（/usr/local/lib/qi/libqi_compiler.a）</li>
         <li>GUI 库（/usr/local/lib/qi/libqi_gui.a）</li>
     </ul>
-    <p>安装后，您可以在终端中直接使用 <code>qi</code> 命令，包括图形化功能。</p>
+    <p>安装后，您可以在终端中使用 <code>qi</code> 或 <code>奇</code> 命令，包括图形化功能。</p>
 </body>
 </html>
 WELCOME_EOF
@@ -237,10 +246,11 @@ cat > "$SCRIPT_DIR/welcome.html" << 'WELCOME_EOF'
     <p>此安装程序将安装以下组件：</p>
     <ul>
         <li>qi 编译器（/usr/local/bin/qi）</li>
+        <li>奇 命令别名（/usr/local/bin/奇）</li>
         <li>运行时库（/usr/local/lib/qi/libqi_compiler.a）</li>
     </ul>
     <p><strong>注意：</strong>此版本不包含 GUI 库，图形化功能将不可用。</p>
-    <p>安装后，您可以在终端中直接使用 <code>qi</code> 命令。</p>
+    <p>安装后，您可以在终端中使用 <code>qi</code> 或 <code>奇</code> 命令。</p>
 </body>
 </html>
 WELCOME_EOF
@@ -276,9 +286,11 @@ cat > "$SCRIPT_DIR/conclusion.html" << 'CONCLUSION_EOF'
     <p>打开终端，输入以下命令查看版本：</p>
     <pre><code>qi --version</code></pre>
     <p>运行示例程序：</p>
-    <pre><code>qi run 示例.qi</code></pre>
+    <pre><code>qi 运行 示例.qi
+# 或使用中文命令
+奇 运行 示例.qi</code></pre>
     <p>查看帮助：</p>
-    <pre><code>qi --help</code></pre>
+    <pre><code>qi --帮助</code></pre>
     <h2>更多信息：</h2>
     <p>访问官方文档了解更多内容。</p>
 </body>

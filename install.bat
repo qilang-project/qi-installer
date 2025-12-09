@@ -90,6 +90,10 @@ if %errorLevel% neq 0 (
     exit /b 1
 )
 
+REM 创建中文别名（使用 copy 代替 mklink，因为 mklink 需要特殊权限）
+echo [信息] 创建中文命令别名...
+copy /Y "%BIN_DIR%\qi.exe" "%BIN_DIR%\奇.exe" >nul
+
 echo [信息] 复制运行时库...
 copy /Y "%QI_LIB%" "%LIB_DIR%\qi_compiler.lib" >nul
 if %errorLevel% neq 0 (
@@ -124,12 +128,17 @@ echo.
 echo [成功] 奇语言编译器安装成功！
 echo.
 echo [信息] 使用方法:
-echo   qi run ^<文件.qi^>       - 运行奇语言程序
-echo   qi compile ^<文件.qi^>   - 编译奇语言程序
-echo   qi check ^<文件.qi^>     - 检查语法
-echo   qi --help              - 查看帮助
+echo   qi 运行 ^<文件.qi^>       - 运行奇语言程序
+echo   qi 编译 ^<文件.qi^>       - 编译奇语言程序
+echo   qi 检查 ^<文件.qi^>       - 检查语法
+echo   qi --帮助                 - 查看帮助
 echo.
-echo [注意] 请重新打开命令提示符窗口以使用 qi 命令
+echo [信息] 或使用中文命令:
+echo   奇 运行 ^<文件.qi^>       - 运行奇语言程序
+echo   奇 编译 ^<文件.qi^>       - 编译奇语言程序
+echo   奇 检查 ^<文件.qi^>       - 检查语法
+echo.
+echo [注意] 请重新打开命令提示符窗口以使用 qi 或 奇 命令
 echo.
 echo ================================================
 echo [成功] 安装完成！
