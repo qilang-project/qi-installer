@@ -1,0 +1,201 @@
+name: Release Installer
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (如 2026.424.1)'
+        required: true
+  repository_dispatch:
+    types: [qi-released]
+
+permissions:
+  contents: write
+
+env:
+  VERSION: ${{ github.event.inputs.version || github.event.client_payload.version }}
+
+jobs:
+  macos-pkg:
+    name: macOS PKG (${{ matrix.arch }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            arch: arm64
+            qi_asset: qi-${{ github.event.inputs.version || github.event.client_payload.version }}-macos-arm64.tar.gz
+          - os: macos-13
+            arch: x64
+            qi_asset: qi-${{ github.event.inputs.version || github.event.client_payload.version }}-macos-x64.tar.gz
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download qi binary
+        run: |
+          gh release download ${{ env.VERSION }} \
+            --repo qilang-project/qi \
+            --pattern "${{ matrix.qi_asset }}" \
+            --output qi.tar.gz
+          tar xzf qi.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build PKG
+        run: |
+          VERSION="${{ env.VERSION }}"
+          ARCH="${{ matrix.arch }}"
+
+          mkdir -p pkg-root/usr/local/bin
+          cp qi pkg-root/usr/local/bin/qi
+          chmod +x pkg-root/usr/local/bin/qi
+
+          # 创建中文别名
+          cp qi pkg-root/usr/local/bin/奇
+          chmod +x pkg-root/usr/local/bin/奇
+
+          pkgbuild \
+            --root pkg-root \
+            --identifier org.qilang.qi \
+            --version "$VERSION" \
+            --install-location / \
+            qi-component.pkg
+
+          productbuild \
+            --package qi-component.pkg \
+            --identifier org.qilang.qi \
+            --version "$VERSION" \
+            "qi-installer-${VERSION}-macos-${ARCH}.pkg"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-${{ matrix.arch }}-pkg
+          path: qi-installer-${{ env.VERSION }}-macos-${{ matrix.arch }}.pkg
+
+  windows-msi:
+    name: Windows MSI
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download qi binary
+        run: |
+          $version = "${{ env.VERSION }}"
+          gh release download $version `
+            --repo qilang-project/qi `
+            --pattern "qi-${version}-windows-x64.zip" `
+            --output qi.zip
+          Expand-Archive qi.zip -DestinationPath .
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install WiX
+        run: dotnet tool install --global wix
+
+      - name: Update version in WXS
+        run: |
+          $version = "${{ env.VERSION }}"
+          (Get-Content qi-installer.wxs) -replace 'Version="[^"]*"', "Version=`"$version`"" |
+            Set-Content qi-installer.wxs
+
+      - name: Build MSI
+        run: |
+          $version = "${{ env.VERSION }}"
+          wix build qi-installer.wxs `
+            -ext WixToolset.UI.wixext `
+            -o "qi-installer-${version}-windows-x64.msi"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi
+          path: qi-installer-${{ env.VERSION }}-windows-x64.msi
+
+  linux-deb:
+    name: Linux DEB/RPM
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download qi binary
+        run: |
+          gh release download ${{ env.VERSION }} \
+            --repo qilang-project/qi \
+            --pattern "qi-${{ env.VERSION }}-linux-x64.tar.gz" \
+            --output qi.tar.gz
+          tar xzf qi.tar.gz
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build DEB
+        run: |
+          VERSION="${{ env.VERSION }}"
+          PKG="qi-installer-${VERSION}-linux-x64"
+
+          mkdir -p "${PKG}/usr/local/bin"
+          mkdir -p "${PKG}/DEBIAN"
+
+          cp qi "${PKG}/usr/local/bin/qi"
+          chmod +x "${PKG}/usr/local/bin/qi"
+
+          cat > "${PKG}/DEBIAN/control" << EOF
+          Package: qi-compiler
+          Version: ${VERSION}
+          Architecture: amd64
+          Maintainer: Qi Language Team <team@qi-lang.org>
+          Description: 奇语言编译器 - 100% 中文关键字编程语言
+          EOF
+
+          dpkg-deb --build "${PKG}" "${PKG}.deb"
+
+      - name: Build TAR.GZ
+        run: |
+          VERSION="${{ env.VERSION }}"
+          mkdir -p qi-${VERSION}/bin
+          cp qi qi-${VERSION}/bin/
+          tar czf "qi-installer-${VERSION}-linux-x64.tar.gz" "qi-${VERSION}"
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            qi-installer-${{ env.VERSION }}-linux-x64.deb
+            qi-installer-${{ env.VERSION }}-linux-x64.tar.gz
+
+  release:
+    name: Create Release
+    needs: [macos-pkg, windows-msi, linux-deb]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: ${{ env.VERSION }}
+          draft: false
+          generate_release_notes: false
+          body: |
+            ## 奇语言编译器 ${{ env.VERSION }} 安装包
+
+            | 平台 | 文件 |
+            |------|------|
+            | macOS (Apple Silicon) | `qi-installer-${{ env.VERSION }}-macos-arm64.pkg` |
+            | macOS (Intel) | `qi-installer-${{ env.VERSION }}-macos-x64.pkg` |
+            | Windows | `qi-installer-${{ env.VERSION }}-windows-x64.msi` |
+            | Linux (DEB) | `qi-installer-${{ env.VERSION }}-linux-x64.deb` |
+            | Linux (TAR) | `qi-installer-${{ env.VERSION }}-linux-x64.tar.gz` |
+
+            macOS 安装后可使用 `qi` 或 `奇` 命令。
+          files: artifacts/*
