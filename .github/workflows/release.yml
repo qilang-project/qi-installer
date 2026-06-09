@@ -93,20 +93,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install WiX
-        run: dotnet tool install --global wix
-
-      - name: Update version in WXS
-        run: |
-          $version = "${{ env.VERSION }}"
-          (Get-Content qi-installer.wxs) -replace 'Version="[^"]*"', "Version=`"$version`"" |
-            Set-Content qi-installer.wxs
+        # 固定到 WiX v4，与 qi-installer.wxs 的 v4 schema 一致。
+        run: dotnet tool install --global wix --version 4.0.5
 
       - name: Build MSI
         run: |
           $version = "${{ env.VERSION }}"
-          wix build qi-installer.wxs `
-            -ext WixToolset.UI.wixext `
-            -o "qi-installer-${version}-windows-x64.msi"
+          # MSI ProductVersion 要求 major≤255 / minor≤255 / build≤65535，
+          # 日期版本 2026.06.09-2 不合法，转成 26.6.902 (年-2000.月.日*100+修订)。
+          $p = $version -split '[.\-]'
+          $msi = "$([int]$p[0] - 2000).$([int]$p[1]).$(([int]$p[2]) * 100 + [int]$p[3])"
+          Write-Host "MSI ProductVersion = $msi (from $version)"
+          (Get-Content qi-installer.wxs) -replace 'Version="0.0.0"', "Version=`"$msi`"" |
+            Set-Content qi-installer.wxs
+          wix build qi-installer.wxs -o "qi-installer-${version}-windows-x64.msi"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
