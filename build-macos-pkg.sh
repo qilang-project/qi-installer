@@ -62,9 +62,13 @@ else
     cargo build -p qi-compiler --release
 fi
 
+# 构建无 LLVM 的 qi-runtime 归档（inkwell 后端链接用户程序用它）
+print_info "构建 qi-runtime 归档..."
+(cd "$WORKSPACE_DIR/qi-runtime" && cargo build --release)
+
 # 检查编译产物
 QI_BINARY="target/release/qi"
-QI_LIB="target/release/libqi_compiler.a"
+QI_LIB="qi-runtime/target/release/libqi_runtime.a"
 QI_GUI_LIB="target/release/libqi_gui.a"
 
 if [ ! -f "$QI_BINARY" ]; then
@@ -73,7 +77,7 @@ if [ ! -f "$QI_BINARY" ]; then
 fi
 
 if [ ! -f "$QI_LIB" ]; then
-    print_error "找不到编译后的 libqi_compiler.a"
+    print_error "找不到编译后的 libqi_runtime.a"
     exit 1
 fi
 
@@ -99,7 +103,7 @@ mkdir -p "$PKG_SCRIPTS"
 
 # 复制文件到 PKG 根目录
 cp "$WORKSPACE_DIR/$QI_BINARY" "$PKG_ROOT/usr/local/bin/qi"
-cp "$WORKSPACE_DIR/$QI_LIB" "$PKG_ROOT/usr/local/lib/qi/libqi_compiler.a"
+cp "$WORKSPACE_DIR/$QI_LIB" "$PKG_ROOT/usr/local/lib/qi/libqi_runtime.a"
 
 # 创建中文别名软链接
 print_info "创建中文命令别名 '奇'..."
@@ -113,7 +117,7 @@ fi
 
 # 设置权限
 chmod 755 "$PKG_ROOT/usr/local/bin/qi"
-chmod 644 "$PKG_ROOT/usr/local/lib/qi/libqi_compiler.a"
+chmod 644 "$PKG_ROOT/usr/local/lib/qi/libqi_runtime.a"
 if [ "$HAS_GUI" = true ]; then
     chmod 644 "$PKG_ROOT/usr/local/lib/qi/libqi_gui.a"
 fi
@@ -129,7 +133,7 @@ cat > "$PKG_SCRIPTS/postinstall" << 'POSTINSTALL_EOF'
 
 # 确保权限正确
 chmod 755 /usr/local/bin/qi
-chmod 644 /usr/local/lib/qi/libqi_compiler.a
+chmod 644 /usr/local/lib/qi/libqi_runtime.a
 
 # 显示成功消息
 echo ""
@@ -222,7 +226,7 @@ cat > "$SCRIPT_DIR/welcome.html" << 'WELCOME_EOF'
     <ul>
         <li>qi 编译器（/usr/local/bin/qi）</li>
         <li>奇 命令别名（/usr/local/bin/奇）</li>
-        <li>运行时库（/usr/local/lib/qi/libqi_compiler.a）</li>
+        <li>运行时库（/usr/local/lib/qi/libqi_runtime.a）</li>
         <li>GUI 库（/usr/local/lib/qi/libqi_gui.a）</li>
     </ul>
     <p>安装后，您可以在终端中使用 <code>qi</code> 或 <code>奇</code> 命令，包括图形化功能。</p>
@@ -247,7 +251,7 @@ cat > "$SCRIPT_DIR/welcome.html" << 'WELCOME_EOF'
     <ul>
         <li>qi 编译器（/usr/local/bin/qi）</li>
         <li>奇 命令别名（/usr/local/bin/奇）</li>
-        <li>运行时库（/usr/local/lib/qi/libqi_compiler.a）</li>
+        <li>运行时库（/usr/local/lib/qi/libqi_runtime.a）</li>
     </ul>
     <p><strong>注意：</strong>此版本不包含 GUI 库，图形化功能将不可用。</p>
     <p>安装后，您可以在终端中使用 <code>qi</code> 或 <code>奇</code> 命令。</p>

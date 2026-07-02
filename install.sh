@@ -74,7 +74,7 @@ detect_os
 print_info "检查安装文件..."
 
 QI_BINARY="$SCRIPT_DIR/bin/qi"
-QI_LIB="$SCRIPT_DIR/lib/libqi_compiler.a"
+QI_LIB="$SCRIPT_DIR/lib/libqi_runtime.a"
 QI_GUI_LIB="$SCRIPT_DIR/lib/libqi_gui.a"
 
 if [ ! -f "$QI_BINARY" ]; then
@@ -83,7 +83,7 @@ if [ ! -f "$QI_BINARY" ]; then
 fi
 
 if [ ! -f "$QI_LIB" ]; then
-    print_error "找不到 libqi_compiler.a 库文件: $QI_LIB"
+    print_error "找不到 libqi_runtime.a 库文件: $QI_LIB"
     exit 1
 fi
 
@@ -102,7 +102,7 @@ echo ""
 # 显示安装信息
 print_info "安装位置:"
 print_info "  可执行文件: $BIN_DIR/qi"
-print_info "  运行时库:   $LIB_DIR/libqi_compiler.a"
+print_info "  运行时库:   $LIB_DIR/libqi_runtime.a"
 if [ "$HAS_GUI" = true ]; then
     print_info "  GUI 库:     $LIB_DIR/libqi_gui.a"
 fi
@@ -134,8 +134,8 @@ print_info "创建中文命令别名..."
 sudo ln -sf "$BIN_DIR/qi" "$BIN_DIR/奇"
 
 print_info "复制运行时库..."
-sudo cp "$QI_LIB" "$LIB_DIR/libqi_compiler.a"
-sudo chmod 644 "$LIB_DIR/libqi_compiler.a"
+sudo cp "$QI_LIB" "$LIB_DIR/libqi_runtime.a"
+sudo chmod 644 "$LIB_DIR/libqi_runtime.a"
 
 # 复制 GUI 库（如果存在）
 if [ "$HAS_GUI" = true ]; then

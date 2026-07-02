@@ -64,3 +64,5 @@ docs/generated/
 # Test outputs
 test_output/
 test_results/
+lib/libqi_runtime.a
+lib/qi_runtime.lib

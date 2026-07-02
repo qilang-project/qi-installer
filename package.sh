@@ -61,9 +61,13 @@ else
     cargo build -p qi-compiler --release
 fi
 
+# 构建无 LLVM 的 qi-runtime 归档（inkwell 后端链接用户程序用它）
+print_info "构建 qi-runtime 归档..."
+(cd "$WORKSPACE_DIR/qi-runtime" && cargo build --release)
+
 # 检查编译产物
 QI_BINARY="target/release/qi"
-QI_LIB="target/release/libqi_compiler.a"
+QI_LIB="qi-runtime/target/release/libqi_runtime.a"
 QI_GUI_LIB="target/release/libqi_gui.a"
 
 if [ ! -f "$QI_BINARY" ]; then
@@ -72,7 +76,7 @@ if [ ! -f "$QI_BINARY" ]; then
 fi
 
 if [ ! -f "$QI_LIB" ]; then
-    print_error "找不到编译后的 libqi_compiler.a"
+    print_error "找不到编译后的 libqi_runtime.a"
     exit 1
 fi
 
@@ -95,7 +99,7 @@ mkdir -p "$SCRIPT_DIR/lib"
 
 # 复制文件
 cp "$QI_BINARY" "$SCRIPT_DIR/bin/qi"
-cp "$QI_LIB" "$SCRIPT_DIR/lib/libqi_compiler.a"
+cp "$QI_LIB" "$SCRIPT_DIR/lib/libqi_runtime.a"
 
 # 复制 GUI 库（如果存在）
 if [ "$HAS_GUI" = true ]; then
@@ -108,7 +112,7 @@ echo ""
 
 print_info "文件位置:"
 print_info "  可执行文件: $SCRIPT_DIR/bin/qi"
-print_info "  运行时库:   $SCRIPT_DIR/lib/libqi_compiler.a"
+print_info "  运行时库:   $SCRIPT_DIR/lib/libqi_runtime.a"
 if [ "$HAS_GUI" = true ]; then
     print_info "  GUI 库:     $SCRIPT_DIR/lib/libqi_gui.a"
 fi
@@ -133,7 +137,7 @@ PACKAGE_PATH="$SCRIPT_DIR/$PACKAGE_NAME"
 cd "$SCRIPT_DIR"
 
 # 构建文件列表
-FILES_TO_PACK="install.sh uninstall.sh bin/qi lib/libqi_compiler.a README.md"
+FILES_TO_PACK="install.sh uninstall.sh bin/qi lib/libqi_runtime.a README.md"
 if [ "$HAS_GUI" = true ]; then
     FILES_TO_PACK="$FILES_TO_PACK lib/libqi_gui.a"
 fi

@@ -79,7 +79,7 @@ Write-Host ""
 
 # 检查编译产物
 $QiBinary = Join-Path $WorkspaceDir "target\release\qi.exe"
-$QiLib = Join-Path $WorkspaceDir "target\release\qi_compiler.lib"
+$QiLib = Join-Path $WorkspaceDir "qi-runtime\target\release\qi_runtime.lib"
 $QiGuiLib = Join-Path $WorkspaceDir "target\release\qi_gui.lib"
 
 if (-not (Test-Path $QiBinary)) {
@@ -88,7 +88,7 @@ if (-not (Test-Path $QiBinary)) {
 }
 
 if (-not (Test-Path $QiLib)) {
-    Write-Error-Custom "找不到 qi_compiler.lib: $QiLib"
+    Write-Error-Custom "找不到 qi_runtime.lib: $QiLib"
     exit 1
 }
 
@@ -108,7 +108,7 @@ New-Item -ItemType Directory -Force -Path $BinDir | Out-Null
 New-Item -ItemType Directory -Force -Path $LibDir | Out-Null
 
 Copy-Item $QiBinary -Destination (Join-Path $BinDir "qi.exe") -Force
-Copy-Item $QiLib -Destination (Join-Path $LibDir "qi_compiler.lib") -Force
+Copy-Item $QiLib -Destination (Join-Path $LibDir "qi_runtime.lib") -Force
 
 # 复制 GUI 库（如果存在）
 if ($HasGui) {

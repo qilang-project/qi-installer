@@ -38,8 +38,8 @@ sudo mkdir -p /usr/local/lib/qi
 sudo cp "$SCRIPT_DIR/bin/qi" /usr/local/bin/qi
 sudo chmod +x /usr/local/bin/qi
 
-sudo cp "$SCRIPT_DIR/lib/libqi_compiler.a" /usr/local/lib/qi/libqi_compiler.a
-sudo chmod 644 /usr/local/lib/qi/libqi_compiler.a
+sudo cp "$SCRIPT_DIR/lib/libqi_runtime.a" /usr/local/lib/qi/libqi_runtime.a
+sudo chmod 644 /usr/local/lib/qi/libqi_runtime.a
 
 print_success "新版本安装完成！"
 echo ""

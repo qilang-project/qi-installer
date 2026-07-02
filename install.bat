@@ -22,7 +22,7 @@ REM 检查必要文件
 echo [信息] 检查安装文件...
 
 set QI_BINARY=%SCRIPT_DIR%bin\qi.exe
-set QI_LIB=%SCRIPT_DIR%lib\qi_compiler.lib
+set QI_LIB=%SCRIPT_DIR%lib\qi_runtime.lib
 set QI_GUI_LIB=%SCRIPT_DIR%lib\qi_gui.lib
 
 if not exist "%QI_BINARY%" (
@@ -32,7 +32,7 @@ if not exist "%QI_BINARY%" (
 )
 
 if not exist "%QI_LIB%" (
-    echo [错误] 找不到 qi_compiler.lib 库文件: %QI_LIB%
+    echo [错误] 找不到 qi_runtime.lib 库文件: %QI_LIB%
     pause
     exit /b 1
 )
@@ -52,7 +52,7 @@ echo.
 REM 显示安装信息
 echo [信息] 安装位置:
 echo   可执行文件: %BIN_DIR%\qi.exe
-echo   运行时库:   %LIB_DIR%\qi_compiler.lib
+echo   运行时库:   %LIB_DIR%\qi_runtime.lib
 if "%HAS_GUI%"=="true" (
     echo   GUI 库:     %LIB_DIR%\qi_gui.lib
 )
@@ -95,7 +95,7 @@ echo [信息] 创建中文命令别名...
 copy /Y "%BIN_DIR%\qi.exe" "%BIN_DIR%\奇.exe" >nul
 
 echo [信息] 复制运行时库...
-copy /Y "%QI_LIB%" "%LIB_DIR%\qi_compiler.lib" >nul
+copy /Y "%QI_LIB%" "%LIB_DIR%\qi_runtime.lib" >nul
 if %errorLevel% neq 0 (
     echo [错误] 复制运行时库失败
     pause
