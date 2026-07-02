@@ -21,6 +21,34 @@ print_error() {
     echo -e "${RED}[错误]${NC} $1"
 }
 
+# 捆绑 homebrew 动态库并修正 rpath —— 让无 homebrew 的机器也能跑
+# (homebrew LLVM 静态链接后仍连带 libz3/libzstd 动态依赖;打进包里,
+#  加载路径改 @rpath,rpath 指向 安装位(/usr/local/lib/qi) 和 解压即用位(bin/../lib))
+bundle_homebrew_dylibs() {
+    local target_bin="$1"   # 要修的 qi 二进制
+    local dylib_dir="$2"    # dylib 落哪
+    mkdir -p "$dylib_dir"
+    otool -L "$target_bin" | awk '/\/opt\/homebrew\//{print $1}' | while read -r dep; do
+        local base
+        base=$(basename "$dep")
+        cp -f "$dep" "$dylib_dir/$base"
+        chmod 755 "$dylib_dir/$base"
+        install_name_tool -change "$dep" "@rpath/$base" "$target_bin"
+        print_info "  捆绑动态库: $base"
+    done
+    install_name_tool -add_rpath /usr/local/lib/qi "$target_bin" 2>/dev/null || true
+    install_name_tool -add_rpath @executable_path/../lib "$target_bin" 2>/dev/null || true
+    install_name_tool -add_rpath @executable_path/../lib/qi "$target_bin" 2>/dev/null || true
+    # install_name_tool 会毁掉 arm64 签名,ad-hoc 重签
+    codesign --force -s - "$target_bin" 2>/dev/null || true
+    # 自检:不许残留 homebrew 绝对路径
+    if otool -L "$target_bin" | grep -q "/opt/homebrew/"; then
+        print_error "仍有 homebrew 动态依赖未处理:"
+        otool -L "$target_bin" | grep "/opt/homebrew/"
+        exit 1
+    fi
+}
+
 # 获取脚本所在目录
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WORKSPACE_DIR="$SCRIPT_DIR/.."
@@ -99,6 +127,8 @@ mkdir -p "$SCRIPT_DIR/lib"
 
 # 复制文件
 cp "$QI_BINARY" "$SCRIPT_DIR/bin/qi"
+print_info "捆绑 homebrew 动态库..."
+bundle_homebrew_dylibs "$SCRIPT_DIR/bin/qi" "$SCRIPT_DIR/lib"
 cp "$QI_LIB" "$SCRIPT_DIR/lib/libqi_runtime.a"
 
 # 复制 GUI 库（如果存在）
@@ -138,6 +168,9 @@ cd "$SCRIPT_DIR"
 
 # 构建文件列表
 FILES_TO_PACK="install.sh uninstall.sh bin/qi lib/libqi_runtime.a README.md"
+for dylib in lib/*.dylib; do
+    [ -e "$dylib" ] && FILES_TO_PACK="$FILES_TO_PACK $dylib"
+done
 if [ "$HAS_GUI" = true ]; then
     FILES_TO_PACK="$FILES_TO_PACK lib/libqi_gui.a"
 fi

@@ -137,6 +137,14 @@ print_info "复制运行时库..."
 sudo cp "$QI_LIB" "$LIB_DIR/libqi_runtime.a"
 sudo chmod 644 "$LIB_DIR/libqi_runtime.a"
 
+# 复制捆绑的 homebrew 动态库(z3/zstd 等,qi 二进制经 rpath 加载它们)
+for dylib in "$SCRIPT_DIR"/lib/*.dylib; do
+    [ -e "$dylib" ] || continue
+    print_info "复制动态库: $(basename "$dylib")"
+    sudo cp "$dylib" "$LIB_DIR/"
+    sudo chmod 755 "$LIB_DIR/$(basename "$dylib")"
+done
+
 # 复制 GUI 库（如果存在）
 if [ "$HAS_GUI" = true ]; then
     print_info "复制 GUI 库..."
