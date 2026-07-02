@@ -144,14 +144,21 @@ if [ "$HAS_GUI" = true ]; then
     sudo chmod 644 "$LIB_DIR/libqi_gui.a"
 fi
 
-# 验证安装
+# 验证安装（直接调刚装的二进制，不经 PATH —— PATH 里可能有旧版残留遮挡）
 print_info "验证安装..."
-if command -v qi &> /dev/null; then
-    QI_VERSION=$(qi --version 2>&1 || echo "未知版本")
+if [ -x "$BIN_DIR/qi" ]; then
+    QI_VERSION=$("$BIN_DIR/qi" --version 2>&1 || echo "未知版本")
     print_success "奇语言编译器安装成功！"
     echo ""
     print_info "版本信息:"
     echo "  $QI_VERSION"
+    # PATH 遮挡检测：命中的 qi 不是刚装的这个就警告
+    RESOLVED=$(command -v qi 2>/dev/null || true)
+    if [ -n "$RESOLVED" ] && [ "$RESOLVED" != "$BIN_DIR/qi" ]; then
+        echo ""
+        print_error "注意：PATH 里的 'qi' 解析到 $RESOLVED（旧版残留），会遮挡刚安装的 $BIN_DIR/qi"
+        print_info "  删除残留后即可生效:  rm \"$RESOLVED\""
+    fi
     echo ""
     print_info "使用方法:"
     print_info "  qi 运行 <文件.qi>       - 运行奇语言程序"
