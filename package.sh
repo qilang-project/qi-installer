@@ -129,6 +129,12 @@ mkdir -p "$SCRIPT_DIR/lib"
 cp "$QI_BINARY" "$SCRIPT_DIR/bin/qi"
 print_info "捆绑 homebrew 动态库..."
 bundle_homebrew_dylibs "$SCRIPT_DIR/bin/qi" "$SCRIPT_DIR/lib"
+
+# 用刚打包的 qi 编译 Qi 写的工具(自举):qi-init 项目脚手架
+print_info "编译 qi-init(Qi 写的脚手架)..."
+QI_RUNTIME_LIB="$WORKSPACE_DIR/qi-runtime/target/release/libqi_runtime.a" \
+  "$SCRIPT_DIR/bin/qi" -O standard compile "$WORKSPACE_DIR/qi-tools/qi-init/主程序.qi" -o "$SCRIPT_DIR/bin/qi-init"
+
 cp "$QI_LIB" "$SCRIPT_DIR/lib/libqi_runtime.a"
 
 # 复制 GUI 库（如果存在）
@@ -167,7 +173,7 @@ PACKAGE_PATH="$SCRIPT_DIR/$PACKAGE_NAME"
 cd "$SCRIPT_DIR"
 
 # 构建文件列表
-FILES_TO_PACK="install.sh uninstall.sh bin/qi lib/libqi_runtime.a README.md"
+FILES_TO_PACK="install.sh uninstall.sh bin/qi bin/qi-init lib/libqi_runtime.a README.md"
 for dylib in lib/*.dylib; do
     [ -e "$dylib" ] && FILES_TO_PACK="$FILES_TO_PACK $dylib"
 done

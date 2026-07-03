@@ -129,6 +129,13 @@ print_info "复制可执行文件..."
 sudo cp "$QI_BINARY" "$BIN_DIR/qi"
 sudo chmod +x "$BIN_DIR/qi"
 
+# Qi 写的配套工具(可选,包里有就装)
+if [ -f "$SCRIPT_DIR/bin/qi-init" ]; then
+    print_info "复制 qi-init(项目脚手架)..."
+    sudo cp "$SCRIPT_DIR/bin/qi-init" "$BIN_DIR/qi-init"
+    sudo chmod +x "$BIN_DIR/qi-init"
+fi
+
 # 创建中文别名软链接
 print_info "创建中文命令别名..."
 sudo ln -sf "$BIN_DIR/qi" "$BIN_DIR/奇"
