@@ -136,6 +136,12 @@ if [ -f "$SCRIPT_DIR/bin/qi-init" ]; then
     sudo chmod +x "$BIN_DIR/qi-init"
 fi
 
+if [ -f "$SCRIPT_DIR/bin/qifmt" ]; then
+    print_info "复制 qifmt(代码格式化器)..."
+    sudo cp "$SCRIPT_DIR/bin/qifmt" "$BIN_DIR/qifmt"
+    sudo chmod +x "$BIN_DIR/qifmt"
+fi
+
 # 创建中文别名软链接
 print_info "创建中文命令别名..."
 sudo ln -sf "$BIN_DIR/qi" "$BIN_DIR/奇"

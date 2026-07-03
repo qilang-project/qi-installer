@@ -135,6 +135,11 @@ print_info "编译 qi-init(Qi 写的脚手架)..."
 QI_RUNTIME_LIB="$WORKSPACE_DIR/qi-runtime/target/release/libqi_runtime.a" \
   "$SCRIPT_DIR/bin/qi" -O standard compile "$WORKSPACE_DIR/qi-tools/qi-init/主程序.qi" -o "$SCRIPT_DIR/bin/qi-init"
 
+# 自举工具第二个:qifmt 代码格式化器(同款 Qi 写的工具)
+print_info "编译 qifmt(Qi 写的格式化器)..."
+QI_RUNTIME_LIB="$WORKSPACE_DIR/qi-runtime/target/release/libqi_runtime.a" \
+  "$SCRIPT_DIR/bin/qi" -O standard compile "$WORKSPACE_DIR/qi-tools/qi-fmt/主程序.qi" -o "$SCRIPT_DIR/bin/qifmt"
+
 cp "$QI_LIB" "$SCRIPT_DIR/lib/libqi_runtime.a"
 
 # 复制 GUI 库（如果存在）
@@ -173,7 +178,7 @@ PACKAGE_PATH="$SCRIPT_DIR/$PACKAGE_NAME"
 cd "$SCRIPT_DIR"
 
 # 构建文件列表
-FILES_TO_PACK="install.sh uninstall.sh bin/qi bin/qi-init lib/libqi_runtime.a README.md"
+FILES_TO_PACK="install.sh uninstall.sh bin/qi bin/qi-init bin/qifmt lib/libqi_runtime.a README.md"
 for dylib in lib/*.dylib; do
     [ -e "$dylib" ] && FILES_TO_PACK="$FILES_TO_PACK $dylib"
 done
