@@ -93,8 +93,13 @@ fi
 print_info "构建 qi-runtime 归档..."
 (cd "$WORKSPACE_DIR/qi-runtime" && cargo build --release)
 
+# 构建 qi-bindgen（Rust bin，C 头文件 → Qi 外部声明；clang-sys 运行时加载 libclang）
+print_info "构建 qi-bindgen（C 绑定生成器）..."
+cargo build -p qi-tools --bin qi-bindgen --release
+
 # 检查编译产物
 QI_BINARY="target/release/qi"
+QI_BINDGEN_BINARY="target/release/qi-bindgen"
 QI_LIB="qi-runtime/target/release/libqi_runtime.a"
 QI_GUI_LIB="target/release/libqi_gui.a"
 
@@ -140,6 +145,16 @@ print_info "编译 qifmt(Qi 写的格式化器)..."
 QI_RUNTIME_LIB="$WORKSPACE_DIR/qi-runtime/target/release/libqi_runtime.a" \
   "$SCRIPT_DIR/bin/qi" -O standard compile "$WORKSPACE_DIR/qi-tools/qi-fmt/主程序.qi" -o "$SCRIPT_DIR/bin/qifmt"
 
+# qi-bindgen（Rust bin，直接拷贝 cargo 产物，不经 qi 编译）
+if [ -f "$QI_BINDGEN_BINARY" ]; then
+    print_info "复制 qi-bindgen..."
+    cp "$QI_BINDGEN_BINARY" "$SCRIPT_DIR/bin/qi-bindgen"
+    bundle_homebrew_dylibs "$SCRIPT_DIR/bin/qi-bindgen" "$SCRIPT_DIR/lib"
+else
+    print_error "找不到编译后的 qi-bindgen 可执行文件"
+    exit 1
+fi
+
 cp "$QI_LIB" "$SCRIPT_DIR/lib/libqi_runtime.a"
 
 # 复制 GUI 库（如果存在）
@@ -178,7 +193,7 @@ PACKAGE_PATH="$SCRIPT_DIR/$PACKAGE_NAME"
 cd "$SCRIPT_DIR"
 
 # 构建文件列表
-FILES_TO_PACK="install.sh uninstall.sh bin/qi bin/qi-init bin/qifmt lib/libqi_runtime.a README.md"
+FILES_TO_PACK="install.sh uninstall.sh bin/qi bin/qi-init bin/qifmt bin/qi-bindgen lib/libqi_runtime.a README.md"
 for dylib in lib/*.dylib; do
     [ -e "$dylib" ] && FILES_TO_PACK="$FILES_TO_PACK $dylib"
 done

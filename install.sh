@@ -142,6 +142,12 @@ if [ -f "$SCRIPT_DIR/bin/qifmt" ]; then
     sudo chmod +x "$BIN_DIR/qifmt"
 fi
 
+if [ -f "$SCRIPT_DIR/bin/qi-bindgen" ]; then
+    print_info "复制 qi-bindgen(C 头文件绑定生成器)..."
+    sudo cp "$SCRIPT_DIR/bin/qi-bindgen" "$BIN_DIR/qi-bindgen"
+    sudo chmod +x "$BIN_DIR/qi-bindgen"
+fi
+
 # 创建中文别名软链接
 print_info "创建中文命令别名..."
 sudo ln -sf "$BIN_DIR/qi" "$BIN_DIR/奇"

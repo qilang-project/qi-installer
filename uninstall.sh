@@ -78,6 +78,14 @@ if [ -f "$BIN_DIR/qi" ]; then
     print_success "已删除可执行文件"
 fi
 
+# 删除捆绑工具与中文别名
+for tool in qi-init qifmt qi-bindgen 奇; do
+    if [ -e "$BIN_DIR/$tool" ] || [ -L "$BIN_DIR/$tool" ]; then
+        sudo rm -f "$BIN_DIR/$tool"
+        print_success "已删除 $tool"
+    fi
+done
+
 if [ -d "$LIB_DIR" ]; then
     sudo rm -rf "$LIB_DIR"
     print_success "已删除运行时库"
