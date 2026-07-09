@@ -146,7 +146,7 @@ jobs:
           Package: qi-compiler
           Version: ${VERSION}
           Architecture: amd64
-          Maintainer: Qi Language Team <team@qi-lang.org>
+          Maintainer: Qi Language Team <team@qilang.org>
           Description: 奇语言编译器 - 100% 中文关键字编程语言
           EOF
 

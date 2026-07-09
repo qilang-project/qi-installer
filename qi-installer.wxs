@@ -39,7 +39,7 @@
         </Component>
 
         <Property Id="ARPURLINFOABOUT" Value="https://github.com/qilang-project" />
-        <Property Id="ARPCONTACT" Value="support@qi-lang.org" />
+        <Property Id="ARPCONTACT" Value="support@qilang.org" />
     </Package>
 
     <!-- 要安装的文件：qi.exe（CI 解压 windows zip 后位于工作目录根） -->
