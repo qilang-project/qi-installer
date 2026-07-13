@@ -53,6 +53,8 @@ bin/qi
 bin/qic
 bin/qi.exe
 bin/qic.exe
+bin/qi-init
+bin/qi-init.exe
 lib/libqi_compiler.a
 lib/libqi_gui.a
 lib/qi_compiler.lib
