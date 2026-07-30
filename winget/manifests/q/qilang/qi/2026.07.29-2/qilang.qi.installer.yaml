@@ -1,0 +1,15 @@
+# winget 安装清单 —— installer（奇语言 qilang）
+# zip 便携包：解压后把 bin/qi.exe 加进 PATH（保留 lib/qi 同级布局供 runtime 查找）
+PackageIdentifier: qilang.qi
+PackageVersion: 2026.07.29-2
+InstallerType: zip
+NestedInstallerType: portable
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/qilang-project/qi/releases/download/2026.07.29-2/qi-2026.07.29-2-windows-x64.zip
+    InstallerSha256: 00780F7A2B4AB430E8DBEC29B69E37718DDF82F07EF0152598DE9D31129869C8
+    NestedInstallerFiles:
+      - RelativeFilePath: bin\qi.exe
+        PortableCommandAlias: qi
+ManifestType: installer
+ManifestVersion: 1.6.0
